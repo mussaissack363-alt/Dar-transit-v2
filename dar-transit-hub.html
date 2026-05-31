@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dar Transit Hub — Usafiri wa Dar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --border: #1f2d45;
+  --accent: #00d4aa;
+  --accent2: #ff6b35;
+  --accent3: #4f8ef7;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --text: #e8edf5;
+  --text2: #8899bb;
+  --dart: #00d4aa;
+  --daladala: #ff6b35;
+  --car: #4f8ef7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#0a0e17 0%,#0d1829 100%);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(20px);
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;line-height:1.1;}
+.logo-text span{color:var(--accent);display:block;font-size:10px;font-weight:400;letter-spacing:2px;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.live-badge{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:4px;}
+.live-dot{width:6px;height:6px;background:#ef4444;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.lang-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.lang-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:12px 16px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-badge{background:var(--danger);color:#fff;width:16px;height:16px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;}
+
+/* MAIN */
+.main{padding:12px;max-width:900px;margin:0 auto;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+/* MAP */
+#map-canvas{width:100%;height:340px;background:var(--surface2);border-radius:12px;position:relative;overflow:hidden;border:1px solid var(--border);}
+.map-bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 30% 40%, rgba(0,212,170,0.04) 0%, transparent 60%),
+  radial-gradient(ellipse at 70% 60%, rgba(79,142,247,0.04) 0%, transparent 60%),
+  linear-gradient(180deg,#0d1829 0%,#0a1220 100%);}
+.map-road{position:absolute;background:var(--border);border-radius:3px;}
+.map-road.h{height:4px;}
+.map-road.v{width:4px;}
+.map-road.dart{background:rgba(0,212,170,0.5);height:6px;}
+.map-road.dart.v{width:6px;height:auto;}
+.map-stop{position:absolute;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);cursor:pointer;transition:transform 0.2s;z-index:5;}
+.map-stop:hover{transform:scale(1.5);}
+.map-stop.dart{background:var(--dart);}
+.map-stop.major{width:14px;height:14px;}
+.map-label{position:absolute;font-size:8px;color:var(--text2);white-space:nowrap;z-index:6;pointer-events:none;}
+.map-bus{position:absolute;width:12px;height:12px;border-radius:3px;z-index:8;transition:all 2s linear;}
+.map-bus.dart-bus{background:var(--dart);}
+.map-bus.dal-bus{background:var(--daladala);}
+.map-incident{position:absolute;font-size:14px;z-index:7;cursor:pointer;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.map-controls{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.map-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);width:28px;height:28px;border-radius:6px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.map-legend{position:absolute;bottom:8px;left:8px;background:rgba(10,14,23,0.85);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:9px;backdrop-filter:blur(10px);}
+.legend-item{display:flex;align-items:center;gap:5px;margin-bottom:3px;color:var(--text2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.map-tooltip{position:absolute;background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:8px;font-size:10px;z-index:20;display:none;min-width:120px;pointer-events:none;}
+
+/* ROUTE PLANNER */
+.route-form{display:grid;gap:8px;}
+.input-group{display:flex;flex-direction:column;gap:4px;}
+.input-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;}
+select,input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;width:100%;outline:none;}
+select:focus,input:focus{border-color:var(--accent);}
+.mode-btns{display:flex;gap:6px;}
+.mode-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.08);}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;font-family:'Syne',sans-serif;letter-spacing:0.5px;margin-top:4px;transition:opacity 0.2s;}
+.btn:hover{opacity:0.9;}
+.btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.route-result{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;display:none;}
+.route-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.stat{background:var(--surface);border-radius:8px;padding:8px;text-align:center;}
+.stat-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent);}
+.stat-label{font-size:9px;color:var(--text2);margin-top:2px;}
+.route-step{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);}
+.route-step:last-child{border-bottom:none;}
+.step-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.step-info{flex:1;}
+.step-name{font-size:12px;font-weight:500;}
+.step-detail{font-size:10px;color:var(--text2);margin-top:2px;}
+.ai-tip{background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:10px;margin-top:8px;font-size:11px;color:var(--text2);line-height:1.5;}
+.ai-tip-title{color:var(--accent);font-weight:600;margin-bottom:4px;font-size:11px;}
+
+/* REPORTS */
+.report-filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:10px;}
+.filter-chip{padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:10px;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.08);}
+.report-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative;}
+.report-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.report-type{padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.type-accident{background:rgba(239,68,68,0.15);color:#ef4444;}
+.type-flood{background:rgba(79,142,247,0.15);color:#4f8ef7;}
+.type-construction{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.type-congestion{background:rgba(255,107,53,0.15);color:#ff6b35;}
+.type-fare{background:rgba(168,85,247,0.15);color:#a855f7;}
+.type-shortcut{background:rgba(34,197,94,0.15);color:#22c55e;}
+.report-title{font-size:12px;font-weight:600;margin-bottom:3px;}
+.report-body{font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:6px;}
+.report-footer{display:flex;align-items:center;justify-content:space-between;}
+.report-meta{font-size:10px;color:var(--text2);}
+.vote-btns{display:flex;gap:4px;align-items:center;}
+.vote-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:3px 7px;border-radius:6px;font-size:10px;cursor:pointer;transition:all 0.2s;}
+.vote-btn:hover{border-color:var(--accent);color:var(--accent);}
+.vote-count{font-size:11px;font-weight:600;color:var(--text);}
+.severity-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:10px 0 0 10px;}
+.sev-high{background:var(--danger);}
+.sev-medium{background:var(--warn);}
+.sev-low{background:var(--success);}
+
+/* REPORT FORM */
+.form-grid{display:grid;gap:8px;}
+textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;width:100%;outline:none;resize:vertical;min-height:80px;}
+textarea:focus{border-color:var(--accent);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* NEWS */
+.news-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;display:flex;gap:10px;}
+.news-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.news-content{flex:1;}
+.news-title{font-size:12px;font-weight:600;margin-bottom:3px;line-height:1.3;}
+.news-body{font-size:10px;color:var(--text2);line-height:1.4;margin-bottom:4px;}
+.news-meta{display:flex;align-items:center;gap:8px;font-size:9px;color:var(--text2);}
+.news-tag{padding:1px 6px;border-radius:8px;font-weight:600;}
+
+/* AI BULLETIN */
+.bulletin-box{background:linear-gradient(135deg,rgba(0,212,170,0.06),rgba(79,142,247,0.06));border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:14px;}
+.bulletin-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.bulletin-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.bulletin-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;}
+.bulletin-subtitle{font-size:10px;color:var(--text2);}
+.bulletin-content{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;}
+.typing-dots{display:inline-flex;gap:3px;align-items:center;}
+.typing-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:typing 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* AI CHAT */
+.chat-messages{height:260px;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.msg{max-width:85%;padding:8px 10px;border-radius:10px;font-size:12px;line-height:1.5;}
+.msg.user{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;align-self:flex-end;border-radius:10px 10px 2px 10px;}
+.msg.ai{background:var(--surface2);border:1px solid var(--border);align-self:flex-start;border-radius:10px 10px 10px 2px;}
+.chat-input-row{display:flex;gap:6px;margin-top:8px;}
+.chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{background:var(--accent);color:#000;border:none;padding:10px 14px;border-radius:8px;font-size:14px;cursor:pointer;}
+.quick-btns{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.quick-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:4px 8px;border-radius:16px;font-size:10px;cursor:pointer;transition:all 0.2s;}
+.quick-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* HISTORY */
+.history-chart{height:120px;background:var(--surface2);border-radius:8px;padding:10px;position:relative;overflow:hidden;margin-bottom:10px;}
+.history-bar{position:absolute;bottom:10px;width:18px;background:var(--accent);border-radius:3px 3px 0 0;opacity:0.7;transition:opacity 0.2s;}
+.history-bar:hover{opacity:1;}
+.history-label{position:absolute;bottom:0;font-size:7px;color:var(--text2);text-align:center;transform:translateX(-50%);}
+.pattern-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.pattern-icon{font-size:18px;}
+.pattern-info{flex:1;}
+.pattern-title{font-size:11px;font-weight:600;}
+.pattern-detail{font-size:10px;color:var(--text2);}
+.pattern-score{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.score-bad{color:var(--danger);}
+.score-ok{color:var(--warn);}
+.score-good{color:var(--success);}
+
+/* NOTIFICATION */
+.notif{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:10px 16px;font-size:12px;z-index:200;display:none;max-width:300px;text-align:center;box-shadow:0 4px 20px rgba(0,212,170,0.2);}
+.notif.show{display:block;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🚌</div>
+    <div class="logo-text">
+      Dar Transit Hub
+      <span>Usafiri wa Dar</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-sw" onclick="setLang('sw')">SW</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('map')">🗺️ <span data-en="Live Map" data-sw="Ramani">Live Map</span></div>
+  <div class="tab" onclick="showTab('route')">🧭 <span data-en="Route" data-sw="Njia">Route</span></div>
+  <div class="tab" onclick="showTab('reports')">📢 <span data-en="Reports" data-sw="Ripoti">Reports</span> <div class="tab-badge" id="report-count">5</div></div>
+  <div class="tab" onclick="showTab('news')">📰 <span data-en="News" data-sw="Habari">News</span></div>
+  <div class="tab" onclick="showTab('ai')">🤖 <span data-en="AI Guide" data-sw="Msaidizi">AI Guide</span></div>
+  <div class="tab" onclick="showTab('history')">📊 <span data-en="Patterns" data-sw="Mwelekeo">Patterns</span></div>
+</div>
+
+<!-- MAP TAB -->
+<div class="main">
+<div class="section active" id="tab-map">
+  <div class="card">
+    <div class="card-title">🗺️ <span data-en="Dar es Salaam Live Transit Map" data-sw="Ramani ya Usafiri wa Dar">Dar es Salaam Live Transit Map</span></div>
+    <div id="map-canvas">
+      <div class="map-bg"></div>
+      <div class="map-controls">
+        <button class="map-btn" onclick="mapZoom(1)">+</button>
+        <button class="map-btn" onclick="mapZoom(-1)">−</button>
+        <button class="map-btn" onclick="toggleBuses()">🚌</button>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--dart)"></div>DART BRT</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--daladala)"></div>Daladala</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--car)"></div><span data-en="Road" data-sw="Barabara">Road</span></div>
+        <div class="legend-item">⚠️ <span data-en="Incident" data-sw="Tukio">Incident</span></div>
+        <div class="legend-item">🚧 <span data-en="Construction" data-sw="Ujenzi">Construction</span></div>
+      </div>
+      <div class="map-tooltip" id="map-tooltip"></div>
+      <canvas id="mapCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+      <div class="filter-chip active" onclick="toggleLayer(this,'dart')">🟢 DART</div>
+      <div class="filter-chip active" onclick="toggleLayer(this,'dal')">🟠 Daladala</div>
+      <div class="filter-chip active" onclick="toggleLayer(this,'inc')">⚠️ <span data-en="Incidents" data-sw="Matukio">Incidents</span></div>
+      <div class="filter-chip active" onclick="toggleLayer(this,'con')">🚧 <span data-en="Construction" data-sw="Ujenzi">Construction</span></div>
+    </div>
+  </div>
+
+  <!-- Quick AI Bulletin on map tab -->
+  <div class="card">
+    <div class="card-title">🤖 <span data-en="Live AI Traffic Bulletin" data-sw="Taarifa ya AI ya Trafiki">Live AI Traffic Bulletin</span></div>
+    <div class="bulletin-box">
+      <div class="bulletin-content" id="mini-bulletin">
+        <div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROUTE TAB -->
+<div class="section" id="tab-route">
+  <div class="card">
+    <div class="card-title">🧭 <span data-en="Smart Route Planner" data-sw="Mpangaji wa Njia">Smart Route Planner</span></div>
+    <div class="route-form">
+      <div class="input-group">
+        <div class="input-label" data-en="Travel Mode" data-sw="Aina ya Usafiri">Travel Mode</div>
+        <div class="mode-btns">
+          <div class="mode-btn active" onclick="setMode(this,'dart')">🚌 DART</div>
+          <div class="mode-btn" onclick="setMode(this,'daladala')">🚐 Daladala</div>
+          <div class="mode-btn" onclick="setMode(this,'car')">🚗 <span data-en="Drive" data-sw="Gari">Drive</span></div>
+          <div class="mode-btn" onclick="setMode(this,'mix')">🔀 <span data-en="Mix" data-sw="Changanya">Mix</span></div>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="input-label" data-en="From" data-sw="Kutoka">From</div>
+        <select id="from-stop">
+          <option value="">-- Select start --</option>
+          <option value="kimara">Kimara Terminal</option>
+          <option value="mbezi">Mbezi Luis</option>
+          <option value="ubungo">Ubungo Interchange</option>
+          <option value="morocco">Morocco</option>
+          <option value="magomeni">Magomeni</option>
+          <option value="kariakoo">Kariakoo</option>
+          <option value="gerezani">Gerezani Terminal</option>
+          <option value="posta">Posta (City Centre)</option>
+          <option value="kivukoni">Kivukoni</option>
+          <option value="kigamboni">Kigamboni</option>
+          <option value="tegeta">Tegeta</option>
+          <option value="mwenge">Mwenge</option>
+          <option value="msasani">Msasani</option>
+          <option value="sinza">Sinza</option>
+          <option value="tandale">Tandale</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label" data-en="To" data-sw="Kwenda">To</div>
+        <select id="to-stop">
+          <option value="">-- Select destination --</option>
+          <option value="kimara">Kimara Terminal</option>
+          <option value="mbezi">Mbezi Luis</option>
+          <option value="ubungo">Ubungo Interchange</option>
+          <option value="morocco">Morocco</option>
+          <option value="magomeni">Magomeni</option>
+          <option value="kariakoo">Kariakoo</option>
+          <option value="gerezani">Gerezani Terminal</option>
+          <option value="posta">Posta (City Centre)</option>
+          <option value="kivukoni">Kivukoni</option>
+          <option value="kigamboni">Kigamboni</option>
+          <option value="tegeta">Tegeta</option>
+          <option value="mwenge">Mwenge</option>
+          <option value="msasani">Msasani</option>
+          <option value="sinza">Sinza</option>
+          <option value="tandale">Tandale</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label" data-en="Scenario" data-sw="Hali ya Hewa">Scenario</div>
+        <select id="scenario">
+          <option value="normal" data-en="Normal" data-sw="Kawaida">Normal</option>
+          <option value="rush" data-en="Rush Hour (7-9AM / 5-7PM)" data-sw="Msongo wa Asubuhi/Jioni">Rush Hour</option>
+          <option value="rain" data-en="Heavy Rain / Flooding" data-sw="Mvua Kubwa / Mafuriko">Heavy Rain</option>
+          <option value="match" data-en="Match Day / Event" data-sw="Siku ya Mchezo">Match Day</option>
+        </select>
+      </div>
+      <button class="btn" onclick="planRoute()">🔍 <span data-en="Find Best Route" data-sw="Tafuta Njia Bora">Find Best Route</span></button>
+    </div>
+    <div class="route-result" id="route-result"></div>
+  </div>
+</div>
+
+<!-- REPORTS TAB -->
+<div class="section" id="tab-reports">
+  <div class="card">
+    <div class="card-title">📢 <span data-en="Submit a Report" data-sw="Wasilisha Ripoti">Submit a Report</span></div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="input-group">
+          <div class="input-label" data-en="Type" data-sw="Aina">Type</div>
+          <select id="rep-type">
+            <option value="accident">🚨 Accident</option>
+            <option value="flood">🌊 Flood</option>
+            <option value="construction">🚧 Construction</option>
+            <option value="congestion">🚦 Congestion</option>
+            <option value="fare">💰 Fare Hike</option>
+            <option value="shortcut">🟢 Shortcut</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <div class="input-label" data-en="Location" data-sw="Eneo">Location</div>
+          <select id="rep-location">
+            <option value="ubungo">Ubungo</option>
+            <option value="kariakoo">Kariakoo</option>
+            <option value="kimara">Kimara</option>
+            <option value="morocco">Morocco</option>
+            <option value="gerezani">Gerezani</option>
+            <option value="posta">Posta</option>
+            <option value="kivukoni">Kivukoni</option>
+            <option value="mwenge">Mwenge</option>
+            <option value="sinza">Sinza</option>
+            <option value="mbezi">Mbezi</option>
+            <option value="tegeta">Tegeta</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="input-label" data-en="Title" data-sw="Kichwa">Title</div>
+        <input type="text" id="rep-title" placeholder="Brief description..."/>
+      </div>
+      <div class="input-group">
+        <div class="input-label" data-en="Details" data-sw="Maelezo">Details</div>
+        <textarea id="rep-details" placeholder="What's happening? How bad is it? Any suggested detour?"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="input-group">
+          <div class="input-label" data-en="Your Name" data-sw="Jina Lako">Your Name</div>
+          <input type="text" id="rep-name" placeholder="Anonymous OK"/>
+        </div>
+        <div class="input-group">
+          <div class="input-label" data-en="Severity" data-sw="Ukali">Severity</div>
+          <select id="rep-severity">
+            <option value="low">🟡 Low</option>
+            <option value="medium">🟠 Medium</option>
+            <option value="high">🔴 High</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="submitReport()">📤 <span data-en="Submit Report" data-sw="Tuma Ripoti">Submit Report</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 <span data-en="Live Reports Feed" data-sw="Ripoti za Sasa">Live Reports Feed</span></div>
+    <div class="report-filters">
+      <div class="filter-chip active" onclick="filterReports(this,'all')" data-en="All" data-sw="Zote">All</div>
+      <div class="filter-chip" onclick="filterReports(this,'accident')">🚨 Accident</div>
+      <div class="filter-chip" onclick="filterReports(this,'flood')">🌊 Flood</div>
+      <div class="filter-chip" onclick="filterReports(this,'construction')">🚧 Construction</div>
+      <div class="filter-chip" onclick="filterReports(this,'congestion')">🚦 Congestion</div>
+      <div class="filter-chip" onclick="filterReports(this,'shortcut')">🟢 Shortcut</div>
+    </div>
+    <div id="reports-feed"></div>
+  </div>
+</div>
+
+<!-- NEWS TAB -->
+<div class="section" id="tab-news">
+  <div class="card">
+    <div class="card-title">📰 <span data-en="Dar Transport News" data-sw="Habari za Usafiri Dar">Dar Transport News</span></div>
+    <div id="news-feed"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🤖 <span data-en="AI News Summary & Advice" data-sw="Muhtasari wa AI">AI News Summary & Advice</span></div>
+    <div class="bulletin-box">
+      <div class="bulletin-content" id="news-ai-summary">
+        <div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI GUIDE TAB -->
+<div class="section" id="tab-ai">
+  <div class="card">
+    <div class="card-title">🤖 <span data-en="DART AI Guide — Msaidizi wa Usafiri" data-sw="Msaidizi wa DART AI">DART AI Guide</span></div>
+    <div class="quick-btns">
+      <div class="quick-btn" onclick="quickAsk('Posta to Kimara via DART?')">Posta → Kimara</div>
+      <div class="quick-btn" onclick="quickAsk('Cheapest route Ubungo to Kariakoo?')">Ubungo → Kariakoo</div>
+      <div class="quick-btn" onclick="quickAsk('Is it raining? What to do?')">🌧️ Rain advice</div>
+      <div class="quick-btn" onclick="quickAsk('DART BRT fares and rules?')">DART rules</div>
+      <div class="quick-btn" onclick="quickAsk('Daladala za Mwenge zinaenda wapi?')">Daladala Mwenge</div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg ai">Habari gani! 🌴 Mimi ni Msaidizi wako wa Usafiri wa Dar es Salaam. I can help with DART routes, Daladala tips, traffic updates, and shortcuts. How can I help you today? / Naweza kukusaidia vipi leo?</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Ask in English or Swahili..." onkeypress="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📡 <span data-en="Full AI Traffic Bulletin" data-sw="Taarifa Kamili ya AI">Full AI Traffic Bulletin</span></div>
+    <button class="btn secondary" onclick="loadBulletin()" style="margin-bottom:10px;">🔄 <span data-en="Generate Fresh Bulletin" data-sw="Tengeneza Taarifa Mpya">Generate Fresh Bulletin</span></button>
+    <div class="bulletin-box">
+      <div class="bulletin-header">
+        <div class="bulletin-icon">📡</div>
+        <div>
+          <div class="bulletin-title" data-en="Dar Commute Intelligence" data-sw="Akili ya Usafiri wa Dar">Dar Commute Intelligence</div>
+          <div class="bulletin-subtitle" id="bulletin-time">Powered by Gemini AI</div>
+        </div>
+      </div>
+      <div class="bulletin-content" id="full-bulletin">
+        <span data-en="Tap 'Generate' to get a live AI traffic analysis based on current reports." data-sw="Bonyeza 'Tengeneza' kupata uchambuzi wa AI.">Tap 'Generate' to get a live AI traffic analysis based on current reports.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY / PATTERNS TAB -->
+<div class="section" id="tab-history">
+  <div class="card">
+    <div class="card-title">📊 <span data-en="Delay Patterns — This Week" data-sw="Mwelekeo wa Ucheleweshaji">Delay Patterns — This Week</span></div>
+    <div class="history-chart" id="delay-chart"></div>
+    <div id="patterns-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🕐 <span data-en="Peak Hour Warnings" data-sw="Onyo la Saa za Msongo">Peak Hour Warnings</span></div>
+    <div id="peak-warnings"></div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let lang = 'en';
+let travelMode = 'dart';
+let reportFilter = 'all';
+let layers = {dart:true,dal:true,inc:true,con:true};
+let busAnimation;
+let chatHistory = [];
+
+const GEMINI_KEY = ''; // Set your key here or via AI Studio secrets
+
+// ─── REPORTS DATA ─────────────────────────────────────────────────────────────
+let reports = [
+  {id:1,type:'congestion',location:'Ubungo',title:'Gridlock at Ubungo Interchange',body:'Truck accident blocking all lanes on Mandela Expressway. DART buses delayed 20+ mins. Take Morogoro Road alternative.',reporter:'Kelvin S.',time:'8 mins ago',votes:24,severity:'high'},
+  {id:2,type:'flood',location:'Kariakoo',title:'Jangwani flooding warning',body:'Water rising near Jangwani river valley. Morogoro road near Kariakoo partially submerged. DART suspended on this stretch.',reporter:'Amani R.',time:'15 mins ago',votes:38,severity:'high'},
+  {id:3,type:'fare',location:'Tegeta',title:'Fare hike on Tegeta-Mwenge daladala',body:'Conductors charging 700 TZS instead of 500 TZS due to fuel shortages. Negotiate or take DART from Kimara.',reporter:'Juma O.',time:'22 mins ago',votes:16,severity:'medium'},
+  {id:4,type:'shortcut',location:'Posta',title:'Shortcut via Ohio Street',body:'Ohio Street to Kivukoni is clear. Faster than Sokoine Drive right now. Saves about 12 minutes.',reporter:'Fatuma K.',time:'35 mins ago',votes:19,severity:'low'},
+  {id:5,type:'construction',location:'Morocco',title:'Road works on Bagamoyo Road',body:'Night construction near Morocco junction. Single lane open. Expect 10-15 min delay if heading to Tegeta.',reporter:'Hassan M.',time:'1 hr ago',votes:11,severity:'medium'},
+];
+
+// ─── NEWS DATA ────────────────────────────────────────────────────────────────
+const news = [
+  {icon:'🚧',tag:'Construction',tagColor:'#f59e0b',title:'Phase 3 DART expansion: Kimara to Kibaha begins',body:'TANROADS confirms construction of 27km BRT extension starts this month. Expect diversions near Kibaha road junction for 8 months.',time:'2 hrs ago',source:'Daily News'},
+  {icon:'🚨',tag:'Accident',tagColor:'#ef4444',title:'Multi-vehicle crash closes Sam Nujoma Road',body:'Three vehicles involved near UDSM gate. Police on scene. Commuters advised to use Bagamoyo Road via Mwenge instead.',time:'45 mins ago',source:'Mwananchi'},
+  {icon:'🌊',tag:'Flooding',tagColor:'#4f8ef7',title:'Heavy rains expected: Jangwani flood risk',body:'Tanzania Meteorological Authority warns of heavy rainfall. Jangwani valley historically floods — DART may suspend Morogoro trunk services.',time:'3 hrs ago',source:'TMA'},
+  {icon:'🚌',tag:'DART',tagColor:'#00d4aa',title:'DART increases fleet on Trunk 1 during Eid',body:'DART Authority adds 15 extra buses on Kimara-Kivukoni route during Eid Al-Adha celebrations. Fares remain at 650 TZS.',time:'5 hrs ago',source:'DART Authority'},
+  {icon:'⛽',tag:'Fuel',tagColor:'#a855f7',title:'Fuel shortage causes daladala fare hikes across city',body:'Shortage at PUMA and Total stations causing conductors to raise fares by 100-200 TZS on multiple routes. Report overcharging to SUMATRA.',time:'6 hrs ago',source:'Citizen'},
+];
+
+// ─── DELAY PATTERNS ──────────────────────────────────────────────────────────
+const delayData = [
+  {day:'Mon',delay:18,peak:'7-9AM'},
+  {day:'Tue',delay:14,peak:'7-9AM'},
+  {day:'Wed',delay:22,peak:'5-7PM'},
+  {day:'Thu',delay:16,peak:'7-9AM'},
+  {day:'Fri',delay:31,peak:'4-7PM'},
+  {day:'Sat',delay:11,peak:'10AM'},
+  {day:'Sun',delay:7,peak:'—'},
+];
+
+const patterns = [
+  {icon:'🚦',title:'Ubungo Interchange',detail:'Avg 28 min delay on weekday mornings',score:'bad',scoreText:'Congested'},
+  {icon:'🌊',title:'Jangwani Valley (Rainy)',detail:'DART suspended during heavy rain — 100% delay risk',score:'bad',scoreText:'Avoid'},
+  {icon:'🚌',title:'Kimara → Posta DART',detail:'Usually on time, best before 7AM or after 9AM',score:'good',scoreText:'Reliable'},
+  {icon:'🚐',title:'Kariakoo Daladalas (Friday)',detail:'Extremely congested Friday afternoon near market',score:'ok',scoreText:'Moderate'},
+  {icon:'✅',title:'Ohio St → Kivukoni',detail:'Consistently clear shortcut, saves 8-15 mins',score:'good',scoreText:'Fast'},
+];
+
+const peakWarnings = [
+  {time:'6:30 – 9:00 AM',label:'Morning Rush',detail:'Ubungo, Morocco, Kimara — all high congestion. Leave by 6AM or take DART.',icon:'🔴'},
+  {time:'12:00 – 1:30 PM',label:'Lunch Rush',detail:'Kariakoo market area jammed. Avoid Msimbazi St.',icon:'🟡'},
+  {time:'4:30 – 7:30 PM',label:'Evening Rush',detail:'Worst congestion of the day. Morogoro Rd, Mandela Expressway. DART is faster.',icon:'🔴'},
+  {time:'Friday All Day',label:'Market Day',detail:'Kariakoo and Gerezani area extremely busy. Budget +30 mins.',icon:'🟠'},
+];
+
+// ─── LANGUAGE ─────────────────────────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + l) || el.getAttribute('data-en');
+  });
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-sw').classList.toggle('active', l === 'sw');
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'map') drawMap();
+  if (name === 'history') renderHistory();
+  if (name === 'news') renderNews();
+  if (name === 'reports') renderReports();
+}
+
+// ─── MAP ─────────────────────────────────────────────────────────────────────
+const stops = [
+  {id:'kimara',name:'Kimara',x:0.06,y:0.18,type:'dart',major:true},
+  {id:'mbezi',name:'Mbezi',x:0.08,y:0.28,type:'dart'},
+  {id:'ubungo',name:'Ubungo',x:0.28,y:0.22,type:'dart',major:true,incident:'⚠️'},
+  {id:'morocco',name:'Morocco',x:0.38,y:0.18,type:'dart'},
+  {id:'magomeni',name:'Magomeni',x:0.48,y:0.25,type:'dart'},
+  {id:'kariakoo',name:'Kariakoo',x:0.55,y:0.42,type:'dart',major:true,incident:'🌊'},
+  {id:'gerezani',name:'Gerezani',x:0.60,y:0.55,type:'dart',major:true},
+  {id:'posta',name:'Posta',x:0.65,y:0.62,type:'dart',major:true},
+  {id:'kivukoni',name:'Kivukoni',x:0.72,y:0.68,type:'dart'},
+  {id:'kigamboni',name:'Kigamboni',x:0.80,y:0.78,type:'dart'},
+  {id:'tegeta',name:'Tegeta',x:0.22,y:0.08,type:'dart'},
+  {id:'mwenge',name:'Mwenge',x:0.48,y:0.12,type:'dart'},
+  {id:'msasani',name:'Msasani',x:0.62,y:0.10,type:'dart'},
+  {id:'sinza',name:'Sinza',x:0.35,y:0.32,type:'dart'},
+  {id:'tandale',name:'Tandale',x:0.42,y:0.35,type:'dart'},
+];
+
+const roads = [
+  // Morogoro Road (Trunk 1 DART)
+  {from:'kimara',to:'ubungo',type:'dart',label:'Trunk 1'},
+  {from:'ubungo',to:'morocco',type:'dart'},
+  {from:'morocco',to:'magomeni',type:'dart'},
+  {from:'magomeni',to:'kariakoo',type:'dart'},
+  {from:'kariakoo',to:'gerezani',type:'dart'},
+  {from:'gerezani',to:'posta',type:'dart'},
+  {from:'posta',to:'kivukoni',type:'dart'},
+  // Bagamoyo Road
+  {from:'tegeta',to:'mwenge',type:'road'},
+  {from:'mwenge',to:'msasani',type:'road'},
+  {from:'mbezi',to:'ubungo',type:'road'},
+  // Shortcuts
+  {from:'sinza',to:'magomeni',type:'shortcut'},
+  {from:'msasani',to:'kivukoni',type:'road'},
+  {from:'kivukoni',to:'kigamboni',type:'road'},
+];
+
+let buses = [
+  {x:0.06,y:0.18,dx:0.003,dy:0.0008,type:'dart'},
+  {x:0.5,y:0.22,dx:0.002,dy:0.003,type:'dart'},
+  {x:0.35,y:0.32,dx:-0.002,dy:0.002,type:'dal'},
+  {x:0.6,y:0.55,dx:0.002,dy:0.001,type:'dart'},
+];
+let showBuses = true;
+
+function drawMap() {
+  const canvas = document.getElementById('mapCanvas');
+  const container = document.getElementById('map-canvas');
+  canvas.width = container.offsetWidth;
+  canvas.height = container.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Draw roads
+  roads.forEach(r => {
+    const from = stops.find(s=>s.id===r.from);
+    const to = stops.find(s=>s.id===r.to);
+    if(!from||!to) return;
+    ctx.beginPath();
+    ctx.moveTo(from.x*W, from.y*H);
+    ctx.lineTo(to.x*W, to.y*H);
+    if(r.type==='dart') {
+      ctx.strokeStyle = layers.dart ? 'rgba(0,212,170,0.6)' : 'transparent';
+      ctx.lineWidth = 4;
+    } else if(r.type==='shortcut') {
+      ctx.strokeStyle = 'rgba(34,197,94,0.4)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4,4]);
+    } else {
+      ctx.strokeStyle = 'rgba(79,142,247,0.25)';
+      ctx.lineWidth = 2;
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Draw stops
+  stops.forEach(s => {
+    const x = s.x*W, y = s.y*H;
+    const r = s.major ? 7 : 5;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle = s.type==='dart' ? '#00d4aa' : '#ff6b35';
+    ctx.fill();
+    ctx.strokeStyle = '#0a0e17';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = 'rgba(232,237,245,0.8)';
+    ctx.font = `${s.major?9:8}px DM Sans`;
+    ctx.fillText(s.name, x+8, y+3);
+
+    // Incidents
+    if(s.incident && layers.inc) {
+      ctx.font = '12px serif';
+      ctx.fillText(s.incident, x-6, y-8);
+    }
+  });
+
+  // Construction marker
+  if(layers.con) {
+    ctx.font = '12px serif';
+    ctx.fillText('🚧', stops.find(s=>s.id==='morocco').x*W-6, stops.find(s=>s.id==='morocco').y*H-10);
+  }
+
+  // Buses
+  if(showBuses) {
+    buses.forEach(b => {
+      const x = b.x*W, y = b.y*H;
+      ctx.fillStyle = b.type==='dart' ? '#00d4aa' : '#ff6b35';
+      ctx.fillRect(x-5,y-4,10,8);
+      ctx.fillStyle = '#0a0e17';
+      ctx.font = '7px serif';
+      ctx.fillText('▶',x-3,y+3);
+    });
+  }
+}
+
+function animateBuses() {
+  buses.forEach(b => {
+    b.x += b.dx;
+    b.y += b.dy;
+    if(b.x>0.85||b.x<0.05) b.dx*=-1;
+    if(b.y>0.85||b.y<0.05) b.dy*=-1;
+  });
+  drawMap();
+  requestAnimationFrame(animateBuses);
+}
+
+function toggleLayer(el, layer) {
+  el.classList.toggle('active');
+  layers[layer] = !layers[layer];
+  drawMap();
+}
+function mapZoom(d) { /* visual feedback */ showNotif('Zoom ' + (d>0?'in':'out')); }
+function toggleBuses() { showBuses=!showBuses; drawMap(); }
+
+// ─── ROUTE PLANNER ────────────────────────────────────────────────────────────
+function setMode(el, mode) {
+  travelMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+const routeDB = {
+  kimara:{posta:{steps:[{icon:'🚌',color:'#00d4aa',name:'DART Trunk 1',detail:'Kimara → Ubungo → Morocco → Kariakoo → Posta',time:45,cost:650}],total:{time:45,cost:650,dist:22}}},
+  ubungo:{posta:{steps:[{icon:'🚌',color:'#00d4aa',name:'DART Trunk 1',detail:'Ubungo → Morocco → Magomeni → Kariakoo → Posta',time:25,cost:650}],total:{time:25,cost:650,dist:12}}},
+  morocco:{kariakoo:{steps:[{icon:'🚌',color:'#00d4aa',name:'DART Trunk 1',detail:'Morocco → Magomeni → Kariakoo',time:15,cost:650}],total:{time:15,cost:650,dist:7}}},
+  kariakoo:{kivukoni:{steps:[{icon:'🚐',color:'#ff6b35',name:'Daladala 303',detail:'Kariakoo → Gerezani → Kivukoni',time:20,cost:500}],total:{time:20,cost:500,dist:5}}},
+  kimara:{kivukoni:{steps:[{icon:'🚌',color:'#00d4aa',name:'DART Trunk 1',detail:'Kimara → Posta',time:50,cost:650},{icon:'🚐',color:'#ff6b35',name:'Daladala',detail:'Posta → Kivukoni',time:10,cost:400}],total:{time:65,cost:1050,dist:25}}},
+};
+
+function planRoute() {
+  const from = document.getElementById('from-stop').value;
+  const to = document.getElementById('to-stop').value;
+  const scenario = document.getElementById('scenario').value;
+  const result = document.getElementById('route-result');
+
+  if(!from||!to){showNotif('Please select both start and destination!');return;}
+  if(from===to){showNotif('Start and destination are the same!');return;}
+
+  let delay = scenario==='rush'?1.4:scenario==='rain'?1.8:scenario==='match'?1.6:1;
+  let warning = '';
+  if(scenario==='rain') warning = '⚠️ Heavy rain: Jangwani valley route suspended. Using Mandela Expressway alternative.';
+  if(scenario==='rush') warning = '⏰ Rush hour: Ubungo interchange congested. Budget extra 15 mins.';
+  if(scenario==='match') warning = '⚽ Match day: Kariakoo area very busy. Consider earlier departure.';
+
+  // Generate route
+  const fromName = document.getElementById('from-stop').options[document.getElementById('from-stop').selectedIndex].text;
+  const toName = document.getElementById('to-stop').options[document.getElementById('to-stop').selectedIndex].text;
+
+  const baseTime = Math.round((15 + Math.random()*30) * delay);
+  const baseCost = travelMode==='dart'?650:travelMode==='daladala'?500:0;
+  const dist = (8 + Math.random()*18).toFixed(1);
+
+  const tips = {
+    normal: `✅ Route looks clear. Best time to travel. ${travelMode==='dart'?'DART is running on schedule.':'Daladalas available every 5-10 mins.'}`,
+    rush: `⏰ Rush hour active. Consider leaving 30 mins earlier. DART is still faster than road traffic.`,
+    rain: `🌧️ Heavy rain active! Avoid Jangwani valley area. DART may be suspended on Morogoro Rd — take Bagamoyo Road daladala as backup.`,
+    match: `⚽ Match day traffic. Kariakoo and City Centre very busy. Budget extra time and carry exact change for daladala.`
+  };
+
+  result.style.display = 'block';
+  result.innerHTML = `
+    <div class="route-stats">
+      <div class="stat"><div class="stat-val">${baseTime}</div><div class="stat-label">Minutes</div></div>
+      <div class="stat"><div class="stat-val">${baseCost>0?baseCost:'—'}</div><div class="stat-label">TZS</div></div>
+      <div class="stat"><div class="stat-val">${dist}</div><div class="stat-label">km</div></div>
+    </div>
+    ${warning?`<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px;color:#ef4444;">${warning}</div>`:''}
+    <div class="route-step">
+      <div class="step-icon" style="background:rgba(0,212,170,0.1);">📍</div>
+      <div class="step-info"><div class="step-name">${fromName}</div><div class="step-detail">Starting point</div></div>
+    </div>
+    <div class="route-step">
+      <div class="step-icon" style="background:rgba(${travelMode==='dart'?'0,212,170':'255,107,53'},0.1);">${travelMode==='dart'?'🚌':'🚐'}</div>
+      <div class="step-info">
+        <div class="step-name">${travelMode==='dart'?'DART BRT Trunk 1':travelMode==='daladala'?'Daladala (nearest route)':'Drive via main road'}</div>
+        <div class="step-detail">${fromName} → ${toName} • ${baseTime} mins • ${baseCost>0?baseCost+' TZS':'No fare'}</div>
+      </div>
+    </div>
+    <div class="route-step">
+      <div class="step-icon" style="background:rgba(34,197,94,0.1);">🏁</div>
+      <div class="step-info"><div class="step-name">${toName}</div><div class="step-detail">Destination</div></div>
+    </div>
+    <div class="ai-tip">
+      <div class="ai-tip-title">🤖 AI Smart Tip</div>
+      ${tips[scenario]}
+    </div>
+  `;
+}
+
+// ─── REPORTS ──────────────────────────────────────────────────────────────────
+function renderReports() {
+  const feed = document.getElementById('reports-feed');
+  const filtered = reportFilter==='all' ? reports : reports.filter(r=>r.type===reportFilter);
+  document.getElementById('report-count').textContent = reports.length;
+  feed.innerHTML = filtered.map(r => `
+    <div class="report-card">
+      <div class="severity-bar sev-${r.severity}"></div>
+      <div class="report-header">
+        <span class="report-type type-${r.type}">${typeLabel(r.type)}</span>
+        <span style="font-size:10px;color:var(--text2)">${r.time}</span>
+      </div>
+      <div class="report-title">${r.title}</div>
+      <div class="report-body">${r.body}</div>
+      <div class="report-footer">
+        <div class="report-meta">📍 ${r.location} • ${r.reporter}</div>
+        <div class="vote-btns">
+          <button class="vote-btn" onclick="vote(${r.id},1)">👍</button>
+          <span class="vote-count">${r.votes}</span>
+          <button class="vote-btn" onclick="vote(${r.id},-1)">👎</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function typeLabel(t) {
+  const map = {accident:'🚨 Accident',flood:'🌊 Flood',construction:'🚧 Construction',congestion:'🚦 Congestion',fare:'💰 Fare',shortcut:'🟢 Shortcut'};
+  return map[t]||t;
+}
+
+function vote(id, delta) {
+  const r = reports.find(r=>r.id===id);
+  if(r) { r.votes = Math.max(0,r.votes+delta); renderReports(); }
+}
+
+function filterReports(el, filter) {
+  reportFilter = filter;
+  document.querySelectorAll('.report-filters .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderReports();
+}
+
+function submitReport() {
+  const type = document.getElementById('rep-type').value;
+  const location = document.getElementById('rep-location').value;
+  const title = document.getElementById('rep-title').value;
+  const body = document.getElementById('rep-details').value;
+  const name = document.getElementById('rep-name').value || 'Anonymous';
+  const severity = document.getElementById('rep-severity').value;
+  if(!title||!body){showNotif('Please fill in title and details!');return;}
+  reports.unshift({id:Date.now(),type,location,title,body,reporter:name,time:'Just now',votes:1,severity});
+  document.getElementById('rep-title').value='';
+  document.getElementById('rep-details').value='';
+  renderReports();
+  showNotif('✅ Report submitted! Asante sana!');
+  // Ask AI to analyze new report
+  analyzeNewReport(title, body, location);
+}
+
+// ─── NEWS ─────────────────────────────────────────────────────────────────────
+function renderNews() {
+  const feed = document.getElementById('news-feed');
+  feed.innerHTML = news.map(n => `
+    <div class="news-card">
+      <div class="news-icon" style="background:rgba(${hexToRgb(n.tagColor)},0.1)">${n.icon}</div>
+      <div class="news-content">
+        <div class="news-title">${n.title}</div>
+        <div class="news-body">${n.body}</div>
+        <div class="news-meta">
+          <span class="news-tag" style="background:rgba(${hexToRgb(n.tagColor)},0.15);color:${n.tagColor}">${n.tag}</span>
+          ${n.time} • ${n.source}
+        </div>
+      </div>
+    </div>
+  `).join('');
+  generateNewsAI();
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ─── HISTORY ─────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const chart = document.getElementById('delay-chart');
+  const maxDelay = Math.max(...delayData.map(d=>d.delay));
+  chart.innerHTML = delayData.map((d,i) => {
+    const h = (d.delay/maxDelay)*90;
+    const left = 10 + i*(100/delayData.length);
+    const color = d.delay>25?'#ef4444':d.delay>15?'#f59e0b':'#22c55e';
+    return `
+      <div class="history-bar" style="left:${left}%;height:${h}%;background:${color};" title="${d.delay} min avg delay"></div>
+      <div class="history-label" style="left:${left+1.3}%">${d.day}</div>
+    `;
+  }).join('');
+
+  document.getElementById('patterns-list').innerHTML = patterns.map(p => `
+    <div class="pattern-card">
+      <div class="pattern-icon">${p.icon}</div>
+      <div class="pattern-info">
+        <div class="pattern-title">${p.title}</div>
+        <div class="pattern-detail">${p.detail}</div>
+      </div>
+      <div class="pattern-score score-${p.score}">${p.scoreText}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('peak-warnings').innerHTML = peakWarnings.map(p => `
+    <div class="pattern-card">
+      <div class="pattern-icon">${p.icon}</div>
+      <div class="pattern-info">
+        <div class="pattern-title">${p.time} — ${p.label}</div>
+        <div class="pattern-detail">${p.detail}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── GEMINI AI ────────────────────────────────────────────────────────────────
+async function callGemini(prompt, systemCtx) {
+  if(!GEMINI_KEY) return null;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{role:'user',parts:[{text:systemCtx+'\n\n'+prompt}]}],
+        generationConfig:{temperature:0.7,maxOutputTokens:400}
+      })
+    });
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  } catch(e) { return null; }
+}
+
+async function loadBulletin() {
+  const el = document.getElementById('full-bulletin');
+  el.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('bulletin-time').textContent = 'Generating...';
+  const reportsText = reports.map(r=>`[${r.type.toUpperCase()}] ${r.title}: ${r.body}`).join('\n');
+  const prompt = `Here are live commuter reports from Dar es Salaam:\n${reportsText}\n\nGenerate a short "Dar Commute Intelligence Bulletin" in bilingual English/Swahili. Include: traffic index (Good/Fair/Congested/Paralysed), top 2 fare alerts, 1 shortcut tip. Praise any named reporters. Keep it under 150 words, friendly and practical.`;
+  const sys = `You are the Dar es Salaam Transit AI. Bilingual Swahili/English. Friendly, practical, local.`;
+  const text = await callGemini(prompt, sys);
+  el.textContent = text || `🚌 Dar Commute Bulletin\n\nHabari za usafiri wa leo:\n\n🔴 Traffic Index: CONGESTED — Ubungo interchange heavily delayed. Avoid Morogoro Road peak hours.\n\n💰 Fare Alert: Tegeta-Mwenge daladala charging 700 TZS (standard 500 TZS). Use DART from Kimara instead.\n\n🌊 Flood Warning: Jangwani valley at risk. DART may suspend Morogoro trunk — have backup plan.\n\n✅ Shortcut: Ohio Street to Kivukoni is clear. Saves ~12 mins.\n\nAsante kwa ripoti zenu! Keep reporting to help fellow commuters! 🙏`;
+  document.getElementById('bulletin-time').textContent = 'Updated just now';
+}
+
+async function loadMiniBulletin() {
+  const el = document.getElementById('mini-bulletin');
+  const text = await callGemini(
+    `Active reports: ${reports.slice(0,3).map(r=>r.title).join(', ')}. Give a 2-sentence Dar es Salaam traffic snapshot in bilingual Swahili/English.`,
+    'You are a Dar transit AI. Be brief, bilingual, practical.'
+  );
+  el.textContent = text || '🔴 Ubungo congested, Jangwani flood risk active. DART Trunk 1 running — fastest option today. | Ubungo msongamano, DART bado inafanya kazi vizuri. Safiri salama! 🚌';
+}
+
+async function generateNewsAI() {
+  const el = document.getElementById('news-ai-summary');
+  const newsText = news.map(n=>n.title).join('; ');
+  const text = await callGemini(
+    `These are today's Dar transport news headlines: ${newsText}. Give practical advice in 3 bullet points for Dar commuters on how to plan their day. Bilingual Swahili/English.`,
+    'You are a Dar transport AI advisor.'
+  );
+  el.textContent = text || `📋 Today's AI Advice for Dar Commuters:\n\n• 🚧 DART Phase 3 construction starting — expect Kibaha road diversions. Use alternative Bagamoyo road routes.\n\n• 🚨 Sam Nujoma Road closed near UDSM — avoid this route, use Bagamoyo Road via Mwenge instead.\n\n• 🌧️ Heavy rain expected — plan backup route. If DART suspends on Morogoro Rd, take Mandela Expressway daladala.\n\nSafiri salama! Travel safe today! 🚌`;
+}
+
+async function analyzeNewReport(title, body, location) {
+  // Silently update mini bulletin
+  setTimeout(loadMiniBulletin, 2000);
+}
+
+// ─── AI CHAT ──────────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  addMsg(msg, 'user');
+  chatHistory.push({role:'user',text:msg});
+
+  const typingId = 'typing-'+Date.now();
+  addMsg('<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>', 'ai', typingId);
+
+  const sys = `You are 'Dar Transit Companion' (Msaidizi wa Usafiri wa Dar). Expert on DART BRT and Daladala in Dar es Salaam, Tanzania. Bilingual Swahili/English. Friendly, use local terms (kaka, dada, mambo vipi, safiri salama). DART fare: 650 TZS main trunk. Key rules: no walking on BRT lanes (heavy fines!), yellow seats for elderly/pregnant. Jangwani floods during rain — use Bagamoyo/Mandela road daladalas then. Be brief and practical.`;
+  const context = `Recent reports: ${reports.slice(0,2).map(r=>r.title).join(', ')}. History: ${chatHistory.slice(-4).map(h=>h.role+': '+h.text).join(' | ')}`;
+
+  const text = await callGemini(msg, sys+'\n\nContext: '+context);
+  document.getElementById(typingId)?.remove();
+
+  const reply = text || getFallbackReply(msg);
+  addMsg(reply, 'ai');
+  chatHistory.push({role:'ai',text:reply});
+}
+
+function getFallbackReply(msg) {
+  const m = msg.toLowerCase();
+  if(m.includes('kimara')||m.includes('posta')) return "Mambo kaka! 🚌 Kimara → Posta: Take DART Trunk 1 from Kimara terminal. Direct route, ~45 mins normal traffic. Cost: 650 TZS. Leave before 7AM to beat Ubungo congestion!";
+  if(m.includes('rain')||m.includes('mvua')) return "🌧️ Mvua kubwa! During heavy rain, Jangwani valley floods and DART may suspend Morogoro Road trunk. Take Bagamoyo Road daladala or Mandela Expressway route instead. Carry exact change — conductors get busy!";
+  if(m.includes('fare')||m.includes('bei')) return "💰 DART BRT: 650 TZS flat fare on main trunks. Daladalas: 400-600 TZS standard, but some conductors hike during fuel shortage. Report overcharging to SUMATRA: 0800780999 (free call).";
+  if(m.includes('ubungo')) return "⚠️ Ubungo Interchange is currently congested! Best to pass before 7AM or after 9AM. DART is still faster than road traffic there. If you must go during rush hour, budget +20 mins.";
+  return "Habari dada/kaka! 🌴 I'm your Dar transit guide. Ask me about DART routes, Daladala tips, traffic updates, or shortcuts. Naweza kukusaidia? / How can I help? 🚌";
+}
+
+function quickAsk(q) {
+  document.getElementById('chat-input').value = q;
+  sendChat();
+}
+
+function addMsg(text, role, id) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg '+role;
+  if(id) div.id = id;
+  div.innerHTML = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function showNotif(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'), 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  renderReports();
+  drawMap();
+  animateBuses();
+  loadMiniBulletin();
+  setTimeout(renderHistory, 100);
+});
+window.addEventListener('resize', drawMap);
+</script>
+</body>
+</html>
